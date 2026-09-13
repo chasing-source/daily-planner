@@ -155,6 +155,35 @@
       font-weight: 600;
     }
 
+    .sync-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 10px;
+      padding: 5px 9px;
+      border-radius: 99px;
+      color: var(--muted);
+      background: var(--soft);
+      font-size: 12px;
+      font-weight: 750;
+      transition: color .16s ease, background .16s ease;
+    }
+    .sync-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #aab3c6;
+    }
+    .sync-badge[data-status="connecting"] .sync-dot,
+    .sync-badge[data-status="saving"] .sync-dot {
+      background: var(--accent);
+      animation: pulse 1.1s ease-in-out infinite;
+    }
+    .sync-badge[data-status="synced"] { color: #347b60; background: var(--success-soft); }
+    .sync-badge[data-status="synced"] .sync-dot { background: var(--success); }
+    .sync-badge[data-status="offline"] { color: #a25d16; background: #fff6e7; }
+    .sync-badge[data-status="offline"] .sync-dot { background: #dc8a2e; }
+    .sync-button { white-space: nowrap; }
     .date-nav {
       position: relative;
       z-index: 1;
@@ -618,7 +647,36 @@
 
     @media (max-width: 880px) {
       .hero { align-items: flex-start; flex-direction: column; }
-      .date-nav { justify-content: flex-start; max-width: none; }
+      .sync-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 10px;
+      padding: 5px 9px;
+      border-radius: 99px;
+      color: var(--muted);
+      background: var(--soft);
+      font-size: 12px;
+      font-weight: 750;
+      transition: color .16s ease, background .16s ease;
+    }
+    .sync-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #aab3c6;
+    }
+    .sync-badge[data-status="connecting"] .sync-dot,
+    .sync-badge[data-status="saving"] .sync-dot {
+      background: var(--accent);
+      animation: pulse 1.1s ease-in-out infinite;
+    }
+    .sync-badge[data-status="synced"] { color: #347b60; background: var(--success-soft); }
+    .sync-badge[data-status="synced"] .sync-dot { background: var(--success); }
+    .sync-badge[data-status="offline"] { color: #a25d16; background: #fff6e7; }
+    .sync-badge[data-status="offline"] .sync-dot { background: #dc8a2e; }
+    .sync-button { white-space: nowrap; }
+    .date-nav { justify-content: flex-start; max-width: none; }
       .add-form { grid-template-columns: minmax(0, 1fr) 125px 125px; }
       .add-form .primary-button { grid-column: 1 / -1; }
       .lists-grid { grid-template-columns: 1fr; }
@@ -628,7 +686,36 @@
       .app-shell { width: min(100% - 20px, 1080px); padding-top: 14px; }
       .hero { padding: 22px 20px; border-radius: 20px; }
       .clock { font-size: clamp(36px, 13vw, 52px); }
-      .date-nav { display: grid; grid-template-columns: 42px minmax(0, 1fr) 42px; width: 100%; }
+      .sync-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 10px;
+      padding: 5px 9px;
+      border-radius: 99px;
+      color: var(--muted);
+      background: var(--soft);
+      font-size: 12px;
+      font-weight: 750;
+      transition: color .16s ease, background .16s ease;
+    }
+    .sync-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #aab3c6;
+    }
+    .sync-badge[data-status="connecting"] .sync-dot,
+    .sync-badge[data-status="saving"] .sync-dot {
+      background: var(--accent);
+      animation: pulse 1.1s ease-in-out infinite;
+    }
+    .sync-badge[data-status="synced"] { color: #347b60; background: var(--success-soft); }
+    .sync-badge[data-status="synced"] .sync-dot { background: var(--success); }
+    .sync-badge[data-status="offline"] { color: #a25d16; background: #fff6e7; }
+    .sync-badge[data-status="offline"] .sync-dot { background: #dc8a2e; }
+    .sync-button { white-space: nowrap; }
+    .date-nav { display: grid; grid-template-columns: 42px minmax(0, 1fr) 42px; width: 100%; }
       .date-input { width: 100%; }
       .secondary-button { grid-column: 1 / -1; }
       .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -667,6 +754,7 @@
         <div class="timezone-chip"><span class="pulse-dot" aria-hidden="true"></span> 北京时间 · Asia/Shanghai</div>
         <time id="beijingClock" class="clock" datetime="">--:--:--</time>
         <div id="beijingDate" class="hero-date">正在读取北京时间…</div>
+        <div id="syncBadge" class="sync-badge" data-status="connecting" aria-live="polite"><span class="sync-dot" aria-hidden="true"></span><span id="syncText">正在连接共享数据…</span></div>
       </div>
 
       <nav class="date-nav" aria-label="日期导航">
@@ -677,6 +765,7 @@
         </label>
         <button id="nextDay" class="icon-button" type="button" aria-label="后一天" title="后一天">›</button>
         <button id="todayButton" class="secondary-button" type="button">回到今天</button>
+        <button id="syncButton" class="secondary-button sync-button" type="button">↻ 刷新</button>
       </nav>
     </header>
 
@@ -765,7 +854,7 @@
     </main>
 
     <footer class="app-footer">
-      数据仅保存在当前浏览器中 · 每天的计划独立保存 · 北京时间自动更新
+      所有访客共享同一份计划 · 修改会在设备间同步 · 北京时间自动更新
     </footer>
   </div>
 
@@ -776,7 +865,8 @@
       "use strict";
 
       const TIME_ZONE = "Asia/Shanghai";
-      const STORAGE_PREFIX = "daily-planner:beijing:v1:";
+      const SHARED_API_URL = "https://api.npoint.io/7309de1f9520555697eb";
+      const SHARED_CACHE_KEY = "daily-planner:shared-cache:v1";
       const SCHEMA_VERSION = 1;
       const MAX_TEXT_LENGTH = 200;
       const elements = {
@@ -803,6 +893,9 @@
         doneList: document.getElementById("doneList"),
         pendingBadge: document.getElementById("pendingBadge"),
         doneBadge: document.getElementById("doneBadge"),
+        syncBadge: document.getElementById("syncBadge"),
+        syncText: document.getElementById("syncText"),
+        syncButton: document.getElementById("syncButton"),
         toast: document.getElementById("toast")
       };
 
@@ -820,11 +913,19 @@
       const state = {
         selectedDate: "",
         tasks: [],
+        sharedData: { schemaVersion: SCHEMA_VERSION, revision: 0, days: {}, updatedAt: null },
+        pendingVersions: new Map(),
+        syncStatus: "connecting",
         editingId: null,
         draggedId: null
       };
       let lastBeijingDate = "";
       let toastTimer = 0;
+      let saveTimer = 0;
+      let saveInFlight = false;
+      let saveQueued = false;
+      let lastSyncAt = 0;
+      let lastSaveErrorToastAt = 0;
 
       function getBeijingNow() {
         const parts = {};
@@ -870,10 +971,6 @@
         return typeof value === "string" && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value);
       }
 
-      function storageKeyFor(dateString) {
-        return `${STORAGE_PREFIX}${dateString}`;
-      }
-
       function normalizeStoredTask(item, index) {
         if (!item || typeof item.text !== "string" || !item.text.trim()) return null;
         let startTime = isValidClockTime(item.startTime) ? item.startTime : null;
@@ -891,37 +988,224 @@
           sort: Number.isFinite(Number(item.sort)) ? Number(item.sort) : index + 1
         };
       }
-
-      function loadTasks(dateString) {
-        try {
-          const raw = localStorage.getItem(storageKeyFor(dateString));
-          if (!raw) return [];
-          const parsed = JSON.parse(raw);
-          if (!parsed || !Array.isArray(parsed.tasks)) return [];
-          return parsed.tasks
-            .map(normalizeStoredTask)
-            .filter(Boolean)
-            .sort((a, b) => a.sort - b.sort || a.text.localeCompare(b.text, "zh-CN"))
-            .map((task, index) => ({ ...task, sort: index + 1 }));
-        } catch (error) {
-          showToast("该日期的数据无法读取，已显示空计划", "error");
-          return [];
-        }
+      function emptySharedData() {
+        return { schemaVersion: SCHEMA_VERSION, revision: 0, days: {}, updatedAt: null };
       }
 
-      function persistTasks() {
+      function normalizeTaskList(tasks) {
+        return (Array.isArray(tasks) ? tasks : [])
+          .map(normalizeStoredTask)
+          .filter(Boolean)
+          .sort((a, b) => a.sort - b.sort || a.text.localeCompare(b.text, "zh-CN"))
+          .map((task, index) => ({ ...task, sort: index + 1 }));
+      }
+
+      function normalizeSharedData(raw) {
+        const source = raw && typeof raw === "object" ? raw : {};
+        const days = {};
+        if (source.days && typeof source.days === "object" && !Array.isArray(source.days)) {
+          for (const [dateString, tasks] of Object.entries(source.days)) {
+            if (isDateString(dateString) && Array.isArray(tasks)) {
+              days[dateString] = normalizeTaskList(tasks);
+            }
+          }
+        }
+        return {
+          schemaVersion: SCHEMA_VERSION,
+          revision: Number.isFinite(Number(source.revision)) ? Number(source.revision) : 0,
+          days,
+          updatedAt: typeof source.updatedAt === "string" ? source.updatedAt : null
+        };
+      }
+
+      function bindSelectedTasks() {
+        if (!state.sharedData.days[state.selectedDate]) state.sharedData.days[state.selectedDate] = [];
+        state.tasks = state.sharedData.days[state.selectedDate];
+      }
+
+      function cacheSharedData() {
         try {
-          localStorage.setItem(storageKeyFor(state.selectedDate), JSON.stringify({
-            schemaVersion: SCHEMA_VERSION,
-            tasks: state.tasks
-          }));
+          localStorage.setItem(SHARED_CACHE_KEY, JSON.stringify(state.sharedData));
           return true;
         } catch (error) {
-          showToast("浏览器存储不可用，本次修改可能无法保留", "error");
           return false;
         }
       }
 
+      function loadCachedSharedData() {
+        try {
+          const raw = localStorage.getItem(SHARED_CACHE_KEY);
+          return raw ? normalizeSharedData(JSON.parse(raw)) : emptySharedData();
+        } catch (error) {
+          return emptySharedData();
+        }
+      }
+
+      function setSyncStatus(status) {
+        state.syncStatus = status;
+        renderSyncStatus();
+      }
+
+      function renderSyncStatus() {
+        const labels = {
+          connecting: "正在连接共享数据…",
+          saving: "正在保存到共享数据…",
+          synced: lastSyncAt ? `共享数据已同步 · ${new Date(lastSyncAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false })}` : "共享数据已同步",
+          offline: "离线：修改已暂存在本机"
+        };
+        const status = state.syncStatus || "connecting";
+        elements.syncBadge.dataset.status = status;
+        elements.syncText.textContent = labels[status] || labels.connecting;
+        elements.syncButton.disabled = status === "connecting" || status === "saving";
+        elements.syncButton.textContent = status === "saving" ? "同步中…" : "↻ 刷新";
+      }
+
+      function delay(milliseconds) {
+        return new Promise(resolve => window.setTimeout(resolve, milliseconds));
+      }
+
+      async function fetchWithRetry(url, options, attempts = 3) {
+        let lastError = null;
+        for (let attempt = 1; attempt <= attempts; attempt += 1) {
+          try {
+            const response = await fetch(url, options);
+            if (response.ok) return response;
+            const error = new Error(`HTTP ${response.status}`);
+            if (response.status !== 429 && response.status < 500) throw error;
+            lastError = error;
+          } catch (error) {
+            lastError = error;
+          }
+          if (attempt < attempts) await delay(500 * attempt);
+        }
+        throw lastError || new Error("网络请求失败");
+      }
+      async function requestRemoteData() {
+        const response = await fetchWithRetry(`${SHARED_API_URL}?t=${Date.now()}`, {
+          method: "GET",
+          headers: { "Accept": "application/json" },
+          cache: "no-store"
+        });
+        if (!response.ok) throw new Error(`共享数据读取失败：HTTP ${response.status}`);
+        return normalizeSharedData(await response.json());
+      }
+
+      function applyRemoteData(remoteData) {
+        const remote = normalizeSharedData(remoteData);
+        for (const dateString of state.pendingVersions.keys()) {
+          remote.days[dateString] = normalizeTaskList(state.sharedData.days[dateString] || []);
+        }
+        state.sharedData = remote;
+        bindSelectedTasks();
+        cacheSharedData();
+        renderAll();
+      }
+
+      async function syncFromRemote(options = {}) {
+        if (saveInFlight) {
+          saveQueued = true;
+          return false;
+        }
+        if (state.pendingVersions.size) return savePendingChanges();
+        setSyncStatus("connecting");
+        try {
+          const remote = await requestRemoteData();
+          applyRemoteData(remote);
+          lastSyncAt = Date.now();
+          setSyncStatus("synced");
+          if (options.notify) showToast("已同步其他设备的最新修改");
+          return true;
+        } catch (error) {
+          setSyncStatus("offline");
+          if (options.notify) showToast("暂时无法连接共享数据，请稍后重试", "error");
+          return false;
+        }
+      }
+
+      function persistTasks() {
+        state.sharedData.days[state.selectedDate] = normalizeTaskList(state.tasks);
+        bindSelectedTasks();
+        const version = (state.pendingVersions.get(state.selectedDate) || 0) + 1;
+        state.pendingVersions.set(state.selectedDate, version);
+        cacheSharedData();
+        setSyncStatus("saving");
+        scheduleRemoteSave();
+        return true;
+      }
+
+      function scheduleRemoteSave() {
+        window.clearTimeout(saveTimer);
+        saveTimer = window.setTimeout(() => {
+          savePendingChanges();
+        }, 500);
+      }
+
+      async function savePendingChanges() {
+        if (!state.pendingVersions.size) {
+          setSyncStatus("synced");
+          return true;
+        }
+        if (saveInFlight) {
+          saveQueued = true;
+          return false;
+        }
+
+        saveInFlight = true;
+        saveQueued = false;
+        setSyncStatus("saving");
+        const changes = Array.from(state.pendingVersions.entries());
+
+        try {
+          const latest = await requestRemoteData();
+          const merged = normalizeSharedData(latest);
+          for (const [dateString] of changes) {
+            merged.days[dateString] = normalizeTaskList(state.sharedData.days[dateString] || []);
+          }
+          merged.revision = Math.max(Number(latest.revision) || 0, Number(state.sharedData.revision) || 0) + 1;
+          merged.updatedAt = new Date().toISOString();
+
+          const response = await fetchWithRetry(`${SHARED_API_URL}?t=${Date.now()}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify(merged),
+            cache: "no-store"
+          });
+          if (!response.ok) throw new Error(`共享数据保存失败：HTTP ${response.status}`);
+          const saved = normalizeSharedData(await response.json());
+
+          for (const [dateString, version] of changes) {
+            if (state.pendingVersions.get(dateString) === version) {
+              state.pendingVersions.delete(dateString);
+            } else {
+              saved.days[dateString] = normalizeTaskList(state.sharedData.days[dateString] || []);
+            }
+          }
+
+          state.sharedData = saved;
+          bindSelectedTasks();
+          cacheSharedData();
+          lastSyncAt = Date.now();
+          setSyncStatus("synced");
+          renderAll();
+
+          if (state.pendingVersions.size || saveQueued) {
+            saveQueued = false;
+            scheduleRemoteSave();
+          }
+          return true;
+        } catch (error) {
+          cacheSharedData();
+          setSyncStatus("offline");
+          const now = Date.now();
+          if (!lastSaveErrorToastAt || now - lastSaveErrorToastAt > 10000) {
+            showToast("共享保存失败，修改已暂存在本机，将在联网后重试", "error");
+            lastSaveErrorToastAt = now;
+          }
+          return false;
+        } finally {
+          saveInFlight = false;
+        }
+      }
       function getVisibleTasks(done) {
         return state.tasks
           .filter(task => task.done === done)
@@ -1280,6 +1564,7 @@
 
       function renderAll() {
         renderDateControls();
+        renderSyncStatus();
         renderStats();
         renderLists();
       }
@@ -1289,7 +1574,7 @@
         state.selectedDate = dateString;
         state.editingId = null;
         state.draggedId = null;
-        state.tasks = loadTasks(dateString);
+        bindSelectedTasks();
         clearFormError();
         renderAll();
       }
@@ -1333,13 +1618,36 @@
 
       const initialBeijingNow = getBeijingNow();
       lastBeijingDate = initialBeijingNow.date;
+      state.sharedData = loadCachedSharedData();
       selectDate(initialBeijingNow.date);
       updateClock();
+      renderAll();
+      syncFromRemote();
       window.setInterval(updateClock, 1000);
-      document.addEventListener("visibilitychange", () => {
-        if (!document.hidden) updateClock();
+
+      elements.syncButton.addEventListener("click", () => {
+        if (state.pendingVersions.size) {
+          savePendingChanges().then(success => {
+            if (success) showToast("修改已同步到共享数据");
+          });
+        } else {
+          syncFromRemote({ notify: true });
+        }
       });
-    })();
+
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+          updateClock();
+          syncFromRemote();
+        }
+      });
+      window.addEventListener("focus", () => {
+        if (!document.hidden) syncFromRemote();
+      });
+      window.addEventListener("online", () => {
+        if (state.pendingVersions.size) savePendingChanges();
+        else syncFromRemote();
+      });    })();
   </script>
 </body>
 </html>
